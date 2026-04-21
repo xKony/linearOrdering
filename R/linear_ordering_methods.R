@@ -28,8 +28,8 @@ sum_of_ranks <- function(decision, weights, impacts) {
         stop("length of 'weights' is not equal to number of columns")
     matrix <- .normalize_impacts(decision, impacts)
     matrix <- apply(matrix, 2, rank)
-    score <- as.vector(apply(matrix, 1, weighted.mean, weights))
-    df <- data.frame(alt.row = 1:length(vector), score = score, rank = rank(-score), row.names = rownames(decision))
+    score <- as.vector(apply(matrix, 1, stats::weighted.mean, weights))
+    df <- data.frame(alt.row = seq_along(score), score = score, rank = rank(-score), row.names = rownames(decision))
     return(df)
 }
 
@@ -42,8 +42,6 @@ sum_of_ranks <- function(decision, weights, impacts) {
 #'   \item{\code{score}}{Score of alternatives.}
 #'   \item{\code{rank}}{Rank of alternatives based on score.}
 #' }
-#' Should \code{decision} be a data frame, the row names will be carried over
-#' to the return value.
 #' Should \code{decision} be a data frame, the row names will be carried over
 #' to the return value.
 #' @author Antoni Baum \email{antoni.baum@protonmail.com}
@@ -62,7 +60,7 @@ standardized_sums <- function(decision, weights, impacts) {
     matrix <- apply(matrix, 1, mean)
     score <- as.vector(matrix - min(matrix)) / max(matrix - min(matrix))
 
-    df <- data.frame(alt.row = 1:length(vector), score = score, rank = rank(-score), row.names = rownames(decision))
+    df <- data.frame(alt.row = seq_along(score), score = score, rank = rank(-score), row.names = rownames(decision))
     return(df)
 }
 
@@ -93,10 +91,10 @@ hellwig <- function(decision, weights, impacts) {
     matrix <- matrix %*% diag(weights)
     matrix_max <- apply(matrix, 2, max)
     matrix_distance <- apply(matrix, 1, .calculate_distance, matrix_max)
-    reasonable_distance <- mean(matrix_distance) + 2 * sd(matrix_distance)
+    reasonable_distance <- mean(matrix_distance) + 2 * stats::sd(matrix_distance)
     score <- as.vector(1 - matrix_distance / reasonable_distance)
 
-    df <- data.frame(alt.row = 1:length(vector), score = score, rank = rank(-score), row.names = rownames(decision))
+    df <- data.frame(alt.row = seq_along(score), score = score, rank = rank(-score), row.names = rownames(decision))
     return(df)
 }
 
@@ -133,6 +131,6 @@ topsis <- function(decision, weights, impacts) {
     matrix_min_distance <- apply(matrix, 1, .calculate_distance, matrix_min)
     score <- as.vector(matrix_min_distance / (matrix_min_distance + matrix_max_distance))
 
-    df <- data.frame(alt.row = 1:length(vector), score = score, rank = rank(-score), row.names = rownames(decision))
+    df <- data.frame(alt.row = seq_along(score), score = score, rank = rank(-score), row.names = rownames(decision))
     return(df)
 }
